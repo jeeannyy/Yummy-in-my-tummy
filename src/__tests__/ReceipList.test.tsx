@@ -1,125 +1,115 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ReceipList from '../ReceipList';
 import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
-import userEvent from '@testing-library/user-event';
+import fetchMock from 'jest-fetch-mock';
 
-// 테스트 해야할 것
+beforeAll(() => {
+	fetchMock.enableMocks();
+});
 
-// 1) 페이지가 잘 렌더링 되는지(헤더, 입력창)
-// 2) 검색이 잘 되는지
-// 3) 필터, 옵션이 잘 되는지
-// 4) 페이지네이션 되는지
-// 5) 로딩, 에러 제대로 뜨는지
-// 6) 레시피 추가, 삭제 잘 되는지
-
-// ✅ fetch mocking
 beforeEach(() => {
-	global.fetch = jest.fn(() =>
-		Promise.resolve({
-			json: () =>
-				Promise.resolve({
-					recipes: [
-						{
-							id: 1,
-							name: 'Kimchi Fried Rice',
-							image: 'https://example.com/kimchi.jpg',
-							cuisine: 'Korean',
-							caloriesPerServing: 500,
-							cookTimeMinutes: 15,
-							ingredients: ['rice', 'kimchi'],
-							instructions: ['Mix', 'Fry'],
-							tags: ['Vegetarian'],
-						},
-						{
-							id: 2,
-							name: 'Chicken Salad',
-							image: 'https://example.com/salad.jpg',
-							cuisine: 'American',
-							caloriesPerServing: 350,
-							cookTimeMinutes: 10,
-							ingredients: ['chicken', 'lettuce'],
-							instructions: ['Chop', 'Mix'],
-							tags: ['Salad'],
-						},
-					],
-				}),
+	fetchMock.resetMocks();
+	fetchMock.mockResponse(
+		JSON.stringify({
+			recipes: [
+				{
+					id: 1,
+					name: 'Kimchi Fried Rice',
+					image: 'https://example.com/kimchi.jpg',
+					cuisine: 'Korean',
+					caloriesPerServing: 500,
+					cookTimeMinutes: 15,
+					ingredients: ['rice', 'kimchi'],
+					instructions: ['Mix', 'Fry'],
+					tags: ['Vegetarian'],
+				},
+				{
+					id: 2,
+					name: 'Chicken Salad',
+					image: 'https://example.com/salad.jpg',
+					cuisine: 'American',
+					caloriesPerServing: 350,
+					cookTimeMinutes: 10,
+					ingredients: ['chicken', 'lettuce'],
+					instructions: ['Chop', 'Mix'],
+					tags: ['Salad'],
+				},
+			],
 		}),
 	);
 });
 
-afterEach(() => {
-	jest.clearAllMocks();
-});
-
-const renderWithRouter = (ui) => {
+const renderWithRouter = (ui: React.ReactElement) => {
 	return render(<BrowserRouter>{ui}</BrowserRouter>);
 };
 
-// ✅ 기본 렌더링
 test('renders input', async () => {
 	renderWithRouter(<ReceipList />);
 	const input = await screen.findByPlaceholderText(/yummy in my tommy/i);
 	expect(input).toBeInTheDocument();
-	await waitFor(() => screen.getByText(/Kimchi Fried Rice/i));
+	await screen.findByText(/Kimchi Fried Rice/i);
 });
 
-// ✅ 검색 필터
 test('filters recipes by search keyword', async () => {
 	renderWithRouter(<ReceipList />);
-	await waitFor(() => screen.getByText(/Kimchi Fried Rice/i));
+	await screen.findByText(/Kimchi Fried Rice/i);
+
 	const input = screen.getByPlaceholderText(/yummy/i);
+	await userEvent.clear(input);
 	await userEvent.type(input, 'salad');
 
 	expect(screen.queryByText(/Kimchi Fried Rice/i)).not.toBeInTheDocument();
 	expect(screen.getByText(/Chicken Salad/i)).toBeInTheDocument();
 });
 
-// ✅ 채식 필터
 test('filters by vegetarian tag', async () => {
 	renderWithRouter(<ReceipList />);
-	await waitFor(() => screen.getByText(/Kimchi Fried Rice/i));
-	const checkbox = screen.getByLabelText(/Vegeterian Only/i);
+	await screen.findByText(/Kimchi Fried Rice/i);
+
+	const checkbox = screen.getByLabelText(/ベジタリアン/i);
 	fireEvent.click(checkbox);
 
 	expect(screen.getByText(/Kimchi Fried Rice/i)).toBeInTheDocument();
 	expect(screen.queryByText(/Chicken Salad/i)).not.toBeInTheDocument();
 });
 
-// ✅ 정렬: cook time
 test('sorts recipes by cook time', async () => {
 	renderWithRouter(<ReceipList />);
-	await waitFor(() => screen.getByText(/Kimchi Fried Rice/i));
-	const sortSelect = screen.getByDisplayValue('No Sorting');
+	await screen.findByText(/Kimchi Fried Rice/i);
+
+	const sortSelect = screen.getByDisplayValue(/並び替えなし/i);
 	fireEvent.change(sortSelect, { target: { value: 'cooktime' } });
 
 	expect(screen.getByText(/Chicken Salad/i)).toBeInTheDocument();
 	expect(screen.getByText(/Kimchi Fried Rice/i)).toBeInTheDocument();
 });
 
-// ✅ 페이지네이션이 표시되는지
 test('shows pagination buttons', async () => {
 	renderWithRouter(<ReceipList />);
-	await waitFor(() => screen.getByText(/Kimchi Fried Rice/i));
+	await screen.findByText(/Kimchi Fried Rice/i);
+
 	expect(screen.getByText(/Prev/i)).toBeInTheDocument();
 	expect(screen.getByText(/Next/i)).toBeInTheDocument();
 });
 
 test('adds a new recipe through the form', async () => {
 	renderWithRouter(<ReceipList />);
-	await waitFor(() => screen.getByText(/Kimchi Fried Rice/i));
+	await screen.findByText(/Kimchi Fried Rice/i);
 
-	// Add Recipe 버튼 클릭
-	const addButton = screen.getByText(/Add Recipe/i);
-	fireEvent.click(addButton);
+	const file = new File(['dummy content'], 'example.jpg', {
+		type: 'image/jpeg',
+	});
 
-	// 모달 열림 + 입력
+	fireEvent.click(screen.getByText(/NEW/i));
+
 	fireEvent.change(screen.getByLabelText(/Name/i), {
-		target: { value: 'Test Pasta' },
+		target: { value: 'Pasta PePe' },
 	});
 	fireEvent.change(screen.getByLabelText(/Image/i), {
-		target: { value: 'https://example.com/pasta.jpg' },
+		target: { files: [file] },
 	});
 	fireEvent.change(screen.getByLabelText(/Cuisine/i), {
 		target: { value: 'Italian' },
@@ -140,30 +130,21 @@ test('adds a new recipe through the form', async () => {
 		target: { value: 'Italian, Vegetarian' },
 	});
 
-	// 가짜 POST 응답
-	global.fetch.mockResolvedValueOnce({
-		json: async () => ({ id: 999 }),
-	});
+	fetchMock.mockResponseOnce(JSON.stringify({ id: 51 }));
 
-	// 저장 버튼 클릭
-	const saveBtn = screen.getByText(/Save/i);
-	fireEvent.click(saveBtn);
+	fireEvent.click(screen.getByText(/Save/i));
+	screen.debug();
 
-	// 새로운 레시피가 목록에 생겼는지 확인
-	await waitFor(() => screen.getByText(/Test Pasta/i));
+	await screen.findByRole('heading', { name: /Pasta PePe/i, level: 2 });
 });
 
 test('deletes a recipe when Delete button is clicked', async () => {
 	renderWithRouter(<ReceipList />);
-	await waitFor(() => screen.getByText(/Kimchi Fried Rice/i));
+	await screen.findByText(/Kimchi Fried Rice/i);
 
-	// 삭제 mock 응답
-	global.fetch.mockResolvedValueOnce({
-		json: async () => ({}),
-	});
+	fetchMock.mockResponseOnce(JSON.stringify({}));
 
-	const deleteButton = screen.getAllByText(/Delete/i)[0];
-	fireEvent.click(deleteButton);
+	fireEvent.click(screen.getAllByText(/Delete/i)[0]);
 
 	await waitFor(() =>
 		expect(screen.queryByText(/Kimchi Fried Rice/i)).not.toBeInTheDocument(),
@@ -171,9 +152,9 @@ test('deletes a recipe when Delete button is clicked', async () => {
 });
 
 test('shows error message when fetch fails', async () => {
-	global.fetch.mockRejectedValueOnce(new Error('API failed'));
+	fetchMock.mockRejectOnce(new Error('API failed'));
 
 	renderWithRouter(<ReceipList />);
 
-	await waitFor(() => expect(screen.getByText(/Error!/i)).toBeInTheDocument());
+	await screen.findByText(/Error!/i);
 });

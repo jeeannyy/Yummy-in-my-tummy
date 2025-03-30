@@ -235,7 +235,7 @@ function ReceipList() {
 				data = await response.json();
 
 				const recipeWithId = { ...newRecipe, id: data.id };
-				setRecipes((prev) => [...prev, recipeWithId]);
+				setRecipes((prev) => [recipeWithId, ...prev]);
 			}
 		} catch (error) {
 			console.log(error, '<<error');
@@ -499,14 +499,14 @@ function ReceipList() {
 								<strong>⏰ Cook Time:</strong> {recipe.cookTimeMinutes} min
 							</p>
 
-							<p>
+							<div>
 								<strong>🥣 Instructions</strong>
 								<ol className='recipe-details-instructions'>
 									{recipe?.instructions?.map((instruction, index) => (
 										<li key={index}>{instruction}</li>
 									))}
 								</ol>
-							</p>
+							</div>
 							<p className='recipe-details-ingredients'>
 								<strong>🧺 Ingredients: </strong>
 								{recipe?.ingredients?.join(', ')}
