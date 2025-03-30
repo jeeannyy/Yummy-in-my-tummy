@@ -16,7 +16,7 @@ function Sidebar() {
 				className='hamburger-btn'
 				onClick={() => setIsSidebarOpen((prev) => !prev)}
 			>
-				{isSidebarOpen ? '❌' : '🍔'}
+				{isSidebarOpen ? '❌' : '🍙'}
 			</button>
 			{isSidebarOpen && (
 				<div
