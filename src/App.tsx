@@ -12,8 +12,8 @@ function App() {
 				<Sidebar />
 				<main className='main-content'>
 					<Routes>
-						<Route path='/recipes' element={<ReceipList />} />
-						<Route path='/recipes/:id' element={<RecipeDetail />} />
+						<Route path='/' element={<ReceipList />} />
+						<Route path='/recipe/:id' element={<RecipeDetail />} />
 					</Routes>
 				</main>
 			</Router>

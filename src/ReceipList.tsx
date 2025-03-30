@@ -272,7 +272,7 @@ function ReceipList() {
 	return (
 		<>
 			<div className='header-container'>
-				<Link to={'/recipes'} className='recipe-link'>
+				<Link to={'/'} className='recipe-link'>
 					<h1 className='title-header'>レシピ</h1>
 				</Link>
 

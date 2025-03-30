@@ -31,7 +31,7 @@ function Sidebar() {
 						<ul className='responsive-bar-list'>
 							<li
 								onClick={() => {
-									navigate('/recipes');
+									navigate('/');
 									setIsSidebarOpen(false);
 								}}
 							>
