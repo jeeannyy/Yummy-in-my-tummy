@@ -73,10 +73,17 @@ button {
 }
 
 .recipe-item {
-	max-width: 500px;
+	/* max-width: 500px; */
 	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
 	border-radius: 10px;
 	padding: 20px;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+	padding: 16px;
+	border-radius: 12px;
 }
 
 .recipe-image {
@@ -90,7 +97,7 @@ button {
 }
 
 .recipe-title {
-	font-size: 30px;
+	font-size: 28px;
 	font-weight: bold;
 	text-align: center;
 	cursor: pointer;
@@ -103,7 +110,7 @@ button {
 }
 
 .recipe-details {
-	font-size: 22px;
+	font-size: 20px;
 	margin-top: 8px;
 	color: #867d77;
 }
@@ -343,7 +350,7 @@ Form Modal */
 	display: flex;
 	justify-content: flex-end;
 	gap: 20px;
-	margin-top: 18px;
+	margin-top: auto;
 }
 
 .edit-recipe-btn,

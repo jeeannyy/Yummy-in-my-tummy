@@ -280,7 +280,7 @@ function ReceipList() {
 					<input
 						ref={inputRef}
 						type='text'
-						placeholder='yummy in my tommy'
+						placeholder='yummy in my tummy'
 						value={searchedValue}
 						onChange={handleInputChange}
 					/>

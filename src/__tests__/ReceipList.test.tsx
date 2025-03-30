@@ -48,7 +48,7 @@ const renderWithRouter = (ui: React.ReactElement) => {
 
 test('renders input', async () => {
 	renderWithRouter(<ReceipList />);
-	const input = await screen.findByPlaceholderText(/yummy in my tommy/i);
+	const input = await screen.findByPlaceholderText(/yummy in my tummy/i);
 	expect(input).toBeInTheDocument();
 	await screen.findByText(/Kimchi Fried Rice/i);
 });
