@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import './ReceipList.css';
 
 type Recipe = {
@@ -27,7 +27,6 @@ type FormData = {
 
 function ReceipList() {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const navigate = useNavigate();
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const category = searchParams.get('tag');
@@ -71,6 +70,9 @@ function ReceipList() {
 			try {
 				const response = await fetch('https://dummyjson.com/recipes');
 				const data = await response.json();
+				if (!response.ok) {
+					throw new Error('Network response is not ok');
+				}
 				setRecipes(data.recipes);
 			} catch (error) {
 				console.log(error, '<<error');

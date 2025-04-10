@@ -24,10 +24,14 @@ function ReceipDetail() {
 
 	useEffect(() => {
 		const fetchRecipeDetail = async () => {
-			setLoading(true);
 			try {
 				const response = await fetch(`https://dummyjson.com/recipes/${id}`);
 				const data = await response.json();
+
+				if (!response.ok) {
+					throw new Error('Network response is not ok');
+				}
+
 				setDetail(data);
 			} catch (error) {
 				console.log(error);
